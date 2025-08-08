@@ -5,6 +5,11 @@ pipeline {
         IMAGE_NAME = "diazluthfi/nextjs-app"
         IMAGE_TAG = "v${BUILD_NUMBER}" // Tanpa 'env.' karena sudah dalam block environment
         DOCKERHUB_CREDENTIALS_ID = "a036c99f-de1f-4a66-b4fa-f19b7871d0a5"
+        TOKEN_CREDENTIALS_ID = "024936f6-e9a4-42aa-839f-da9984b2a089"
+        SERVER_CREDENTIALS_ID = "1a856ca8-927b-4627-bc5c-eeefb94cd1d1"
+        
+        OPENSHIFT_NAMESPACE = "cicdnextjs" // ganti dengan project-mu
+        MANIFEST_PATH = "nextjs.yaml"  
     }
 
     stages {
@@ -45,6 +50,23 @@ pipeline {
                 """
             }
         }
+
+    
+        stage('Login OpenShift') {
+            steps {
+                sh '''
+                    oc login --token=${TOKEN_CREDENTIALS_ID} --server=${SERVER_CREDENTIALS_ID}
+                '''
+            }
+        }
+        stage('Deploy to OpenShift') {
+            steps {
+                sh '''
+                    oc apply -f nextjs.yml
+                '''
+            }
+        
+    }
     }
 
     post {
