@@ -1,51 +1,33 @@
 pipeline {
-    agent {
-        kubernetes {
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: docker-config
-      mountPath: /kaniko/.docker
-  volumes:
-  - name: docker-config
-    secret:
-      secretName: dockerhub-config
-"""
-        }
-    }
+    agent any
+
     environment {
-        IMAGE_NAME = "diazluthfi/nextjs-app"
-        IMAGE_TAG = "v${env.BUILD_NUMBER}"
+        OPENSHIFT_API = 'https://api.rm1.0a51.p1.openshiftapps.com:6443/apis/user.openshift.io/v1/users/~'
+        TOKEN = credentials('sha256~kGmckFiAYRGDhEcSjgFB7D7QtNlmcpD-P4k-Tg1ZGfI')
+        NAMESPACE = 'myproject'
+        
     }
+
     stages {
-        stage('Build and Push with Kaniko') {
+        stage('Clone Git Repo') {
             steps {
-                container('kaniko') {
-                    sh """
-                    /kaniko/executor \
-                      --context `pwd` \
-                      --dockerfile `pwd`/Dockerfile \
-                      --destination=${IMAGE_NAME}:${IMAGE_TAG} \
-                      --destination=${IMAGE_NAME}:latest
-                    """
-                }
+                git branch: 'main', url: 'https://github.com/diazluthfi/nextjs-cicd.git'
             }
         }
-    }
-    post {
-        failure {
-            echo "❌ CI/CD pipeline failed."
+
+        stage('Login to OpenShift') {
+            steps {
+                sh 'oc login --token=$TOKEN --server=$OPENSHIFT_API'
+            }
         }
-        success {
-            echo "✅ CI/CD pipeline success."
+
+        stage('Apply Config to OpenShift') {
+            steps {
+                sh '''
+                oc project $NAMESPACE
+                oc apply -f config/configmap.yaml
+                '''
+            }
         }
     }
 }
