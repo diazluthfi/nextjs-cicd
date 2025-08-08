@@ -52,22 +52,22 @@ pipeline {
         }
 
     
-        stage('Login OpenShift') {
-            steps {
-                sh '''
-                    oc login --token=${TOKEN_CREDENTIALS_ID} --server=${SERVER_CREDENTIALS_ID}
-                '''
-            }
-        }
         stage('Deploy to OpenShift') {
             steps {
-                sh '''
-                    oc apply -f nextjs.yml
-                '''
+                withCredentials([string(credentialsId: TOKEN_CREDENTIALS_ID, variable: 'OC_TOKEN')]) {
+                    sh '''
+                    oc login --token=$OC_TOKEN --server=https://api.rm1.0a51.p1.openshiftapps.com:6443
+                    oc apply -f manifest.yaml
+                    '''
+                }
             }
+            
+            }
+    
+
         
     }
-    }
+    
 
     post {
         success {
