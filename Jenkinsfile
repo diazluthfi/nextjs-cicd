@@ -51,7 +51,18 @@ pipeline {
             }
         }
 
-    
+        stage('Update YAML with Latest Tag') {
+            steps {
+                script {
+                    sh """
+                    sed -i 's|__IMAGE_TAG__|${IMAGE_TAG}|' ${MANIFEST_PATH}
+                    """
+                    echo "✅ Placeholder __IMAGE_TAG__ berhasil diganti dengan tag: ${IMAGE_TAG}"
+                    sh "grep 'image:' ${MANIFEST_PATH}"
+                }
+            }
+        }
+
         stage('Deploy to OpenShift') {
             steps {
                 withCredentials([string(credentialsId: TOKEN_CREDENTIALS_ID, variable: 'OC_TOKEN')]) {
@@ -62,7 +73,7 @@ pipeline {
                 }
             }
             
-            }
+        }
     
 
     }
