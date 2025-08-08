@@ -9,7 +9,7 @@ pipeline {
         SERVER_CREDENTIALS_ID = "1a856ca8-927b-4627-bc5c-eeefb94cd1d1"
         
         OPENSHIFT_NAMESPACE = "cicdnextjs" // ganti dengan project-mu
-        MANIFEST_PATH = "nextjs.yaml"  
+        MANIFEST_PATH = "nextjs.yml"  
     }
 
     stages {
