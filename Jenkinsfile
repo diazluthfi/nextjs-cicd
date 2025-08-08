@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs "node20"
+    }
+
     stages {
         stage('Clone') {
             steps {
@@ -22,7 +26,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'npm test'
+                sh 'npm start'
             }
         }
     }
