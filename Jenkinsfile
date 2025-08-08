@@ -35,19 +35,19 @@ pipeline {
             }
         }
 
-        stage('Update Manifest') {
-            steps {
-                sh """
-                    sed -i 's|image: .*|image: ${DOCKER_IMAGE}|' ${DEPLOYMENT_FILE}
-                """
-            }
-        }
+        // stage('Update Manifest') {
+        //     steps {
+        //         sh """
+        //             sed -i 's|image: .*|image: ${DOCKER_IMAGE}|' ${DEPLOYMENT_FILE}
+        //         """
+        //     }
+        // }
 
-        stage('Deploy to OpenShift') {
-            steps {
-                sh "oc apply -f ${MANIFEST_DIR}/"
-            }
-        }
+        // stage('Deploy to OpenShift') {
+        //     steps {
+        //         sh "oc apply -f ${MANIFEST_DIR}/"
+        //     }
+        // }
     }
 
     post {
