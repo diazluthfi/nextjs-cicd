@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "diazluthfi/nextjs-app"
         IMAGE_TAG = "v${BUILD_NUMBER}" // Tanpa 'env.' karena sudah dalam block environment
         DOCKERHUB_CREDENTIALS_ID = "a036c99f-de1f-4a66-b4fa-f19b7871d0a5"
-        TOKEN_CREDENTIALS_ID = "024936f6-e9a4-42aa-839f-da9984b2a089"
+        TOKEN_CREDENTIALS_ID = "6fd7c47e-ffd7-4b2b-907b-436d6a327c8c"
         SERVER_CREDENTIALS_ID = "1a856ca8-927b-4627-bc5c-eeefb94cd1d1"
         
         OPENSHIFT_NAMESPACE = "cicdnextjs" // ganti dengan project-mu
@@ -57,7 +57,7 @@ pipeline {
                 withCredentials([string(credentialsId: TOKEN_CREDENTIALS_ID, variable: 'OC_TOKEN')]) {
                     sh '''
                     oc login --token=$OC_TOKEN --server=https://api.rm1.0a51.p1.openshiftapps.com:6443
-                    oc apply -f manifest.yaml
+                    oc apply -f nextjs.yml
                     '''
                 }
             }
