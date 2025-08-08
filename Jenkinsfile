@@ -39,15 +39,6 @@ spec:
                 }
             }
         }
-
-        // stage('Deploy to OpenShift') {
-        //     steps {
-        //         sh """
-        //         sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' k8s/deployment.yaml
-        //         oc apply -f k8s/
-        //         """
-        //     }
-        // }
     }
     post {
         failure {
