@@ -1,61 +1,60 @@
 pipeline {
-    agent any
-
-    environment {
-        DOCKER_IMAGE = "diazluthfi/nextjs-app:${env.BUILD_NUMBER}"
-        DOCKER_LATEST_IMAGE = "diazluthfi/nextjs-app:latest"
-        PROJECT_DIR = "nextjs-app"
-        MANIFEST_DIR = "manifests"
-        DEPLOYMENT_FILE = "${MANIFEST_DIR}/deployment.yaml"
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-config
+      mountPath: /kaniko/.docker
+  volumes:
+  - name: docker-config
+    secret:
+      secretName: dockerhub-config
+"""
+        }
     }
-
+    environment {
+        IMAGE_NAME = "diazluthfi/nextjs-app"
+        IMAGE_TAG = "v${env.BUILD_NUMBER}"
+    }
     stages {
-        stage('Checkout') {
+        stage('Build and Push with Kaniko') {
             steps {
-                git branch: 'main', url: 'https://github.com/diazluthfi/nextjs-cicd.git'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE} -t ${DOCKER_LATEST_IMAGE} ."
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${DOCKER_IMAGE}
-                        docker push ${DOCKER_LATEST_IMAGE}
-                        docker logout
-                    '''
+                container('kaniko') {
+                    sh """
+                    /kaniko/executor \
+                      --context `pwd` \
+                      --dockerfile `pwd`/Dockerfile \
+                      --destination=${IMAGE_NAME}:${IMAGE_TAG} \
+                      --destination=${IMAGE_NAME}:latest
+                    """
                 }
             }
         }
 
-        // stage('Update Manifest') {
+        // stage('Deploy to OpenShift') {
         //     steps {
         //         sh """
-        //             sed -i 's|image: .*|image: ${DOCKER_IMAGE}|' ${DEPLOYMENT_FILE}
+        //         sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' k8s/deployment.yaml
+        //         oc apply -f k8s/
         //         """
         //     }
         // }
-
-        // stage('Deploy to OpenShift') {
-        //     steps {
-        //         sh "oc apply -f ${MANIFEST_DIR}/"
-        //     }
-        // }
     }
-
     post {
-        success {
-            echo "✅ CI/CD Next.js completed successfully."
-        }
         failure {
             echo "❌ CI/CD pipeline failed."
+        }
+        success {
+            echo "✅ CI/CD pipeline success."
         }
     }
 }
