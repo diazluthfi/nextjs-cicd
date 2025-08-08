@@ -2,32 +2,57 @@ pipeline {
     agent any
 
     environment {
-        OPENSHIFT_API = 'https://api.rm1.0a51.p1.openshiftapps.com:6443/apis/user.openshift.io/v1/users/~'
-        TOKEN = credentials('sha256~kGmckFiAYRGDhEcSjgFB7D7QtNlmcpD-P4k-Tg1ZGfI')
-        NAMESPACE = 'myproject'
-        
+        IMAGE_NAME = "diazluthfi/nextjs-app"
+        IMAGE_TAG = "v${BUILD_NUMBER}" // Tanpa 'env.' karena sudah dalam block environment
+        DOCKERHUB_CREDENTIALS_ID = "a036c99f-de1f-4a66-b4fa-f19b7871d0a5"
     }
 
     stages {
-        stage('Clone Git Repo') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/diazluthfi/nextjs-cicd.git'
+                checkout scm
             }
         }
 
-        stage('Login to OpenShift') {
+        stage('Build Docker Image') {
             steps {
-                sh 'oc login --token=$TOKEN --server=$OPENSHIFT_API'
+                script {
+                    sh """
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                    """
+                }
             }
         }
 
-        stage('Apply Config to OpenShift') {
+        stage('Login to Docker Hub') {
             steps {
-                sh '''
-                oc project $NAMESPACE
-                oc apply -f config/configmap.yaml
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: DOCKERHUB_CREDENTIALS_ID,
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
             }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                sh """
+                docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                docker push ${IMAGE_NAME}:latest
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Image successfully pushed to Docker Hub as ${IMAGE_NAME}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "❌ Build or push failed!"
         }
     }
 }
