@@ -4,10 +4,13 @@ WORKDIR /home/myuser/app
 
 RUN adduser -D myuser
 
-COPY --chown=myuser:myuser package*.json ./
+COPY package*.json ./
+
 RUN npm install
 
-COPY --chown=myuser:myuser . .
+COPY . .
+
+RUN chown -R myuser:myuser /home/myuser
 
 USER myuser
 
@@ -15,4 +18,5 @@ RUN npm run build
 
 EXPOSE 3000
 
+# Jalankan aplikasi
 CMD ["npm", "start"]
