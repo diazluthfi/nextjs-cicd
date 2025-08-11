@@ -18,13 +18,13 @@ spec:
           image: diazluthfi/nextjs-app:__IMAGE_TAG__
           ports:
             - containerPort: 3000
-              resources:
-                requests:
-                  cpu: "300m"
-                  memory: "900Mi"
-                limits:
-                  cpu: "600m"
-                  memory: "1800Mi"
+              # resources:
+              #   requests:
+              #     cpu: "300m"
+              #     memory: "900Mi"
+              #   limits:
+              #     cpu: "600m"
+              #     memory: "1800Mi"
 
 ---
 apiVersion: v1
@@ -54,28 +54,28 @@ spec:
 
 ---
 
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: nextjs
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: nextjs
-  minReplicas: 1
-  maxReplicas: 10
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 50
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: 40
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: nextjs
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: nextjs
+#   minReplicas: 1
+#   maxReplicas: 10
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 50
+#     - type: Resource
+#       resource:
+#         name: memory
+#         target:
+#           type: Utilization
+#           averageUtilization: 40
 
