@@ -69,3 +69,18 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
+
+---
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: haproxy
+spec:
+  to:
+    kind: Service
+    name: haproxy
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
