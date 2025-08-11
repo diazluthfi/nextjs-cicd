@@ -1,0 +1,81 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextjs
+  template:
+    metadata:
+      labels:
+        app: nextjs
+    spec:
+      containers:
+        - name: nextjs
+          image: diazluthfi/nextjs-app:__IMAGE_TAG__
+          ports:
+            - containerPort: 3000
+              resources:
+                requests:
+                  cpu: "300m"
+                  memory: "900Mi"
+                limits:
+                  cpu: "600m"
+                  memory: "1800Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs
+spec:
+  selector:
+    app: nextjs
+  ports:
+    - port: 80
+      targetPort: 3000
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nextjs
+spec:
+  to:
+    kind: Service
+    name: nextjs
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nextjs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nextjs
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 40
+
