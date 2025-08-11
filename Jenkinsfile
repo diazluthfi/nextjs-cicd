@@ -10,7 +10,11 @@ pipeline {
         ADHIT_TOKEN = "1971f6af-4364-4520-b6d3-7a06462967bd"
         ADHIT_SERVER = "982385ef-d60e-4b8f-aedc-aa77ad6ff0e3"
         INDRA_TOKEN = "5e05a171-1bbd-456e-9ac5-61bf0c4e1e5d"
+        INDRA_TOKEN = "194cb763-1376-46e6-8e66-efdacc27e803"
         ADJIE_TOKEN = "39061b16-9b3c-4837-aa45-a3fe74ae3d7f"
+        ADJIE_SERVER = "91be26c1-7b7f-40e3-9c4f-9146fb4afb32"
+        PARHAN_TOKEN = "98182a75-faca-4aa9-9d9b-1945cee92b36"
+        PARHAN_SERVER = "e19b278a-0b8b-4a10-aca0-27312151d4f0"
         OPENSHIFT_NAMESPACE = "cicdnextjs" 
         MANIFEST_PATH = "nextjs.yml"  
     }
@@ -83,6 +87,36 @@ pipeline {
                 withCredentials([
                     string(credentialsId: env.ADHIT_TOKEN, variable: 'OC_TOKEN'),
                     string(credentialsId: env.ADHIT_SERVER, variable: 'OC_SERVER')
+                ]) {
+                    sh '''
+                    oc login --token=$OC_TOKEN --server=$OC_SERVER
+                    oc apply -f nextjs.yml
+                    '''
+                }
+                 // Deploy ke cluster INDRA
+                withCredentials([
+                    string(credentialsId: env.INDRA_TOKEN, variable: 'OC_TOKEN'),
+                    string(credentialsId: env.INDRA_SERVER, variable: 'OC_SERVER')
+                ]) {
+                    sh '''
+                    oc login --token=$OC_TOKEN --server=$OC_SERVER
+                    oc apply -f nextjs.yml
+                    '''
+                }
+                 // Deploy ke cluster Adhit
+                withCredentials([
+                    string(credentialsId: env.ADJIE_TOKEN, variable: 'OC_TOKEN'),
+                    string(credentialsId: env.ADJIE_SERVER, variable: 'OC_SERVER')
+                ]) {
+                    sh '''
+                    oc login --token=$OC_TOKEN --server=$OC_SERVER
+                    oc apply -f nextjs.yml
+                    '''
+                }
+                 // Deploy ke cluster Adhit
+                withCredentials([
+                    string(credentialsId: env.PARHAN_TOKEN, variable: 'OC_TOKEN'),
+                    string(credentialsId: env.PARHAN_SERVER, variable: 'OC_SERVER')
                 ]) {
                     sh '''
                     oc login --token=$OC_TOKEN --server=$OC_SERVER
