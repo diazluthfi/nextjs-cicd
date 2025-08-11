@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-config
+data:
+  haproxy.cfg: |
+    global
+        log stdout format raw local0
+
+    defaults
+        mode http
+        timeout connect 5s
+        timeout client  50s
+        timeout server  50s
+
+    backend web_backends
+        balance roundrobin
+        option httpchk GET /
+        server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+        server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+        server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+        server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+        server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+
+    frontend http_front
+        bind *:80
+        default_backend web_backends
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy
+  template:
+    metadata:
+      labels:
+        app: haproxy
+    spec:
+      containers:
+      - name: haproxy
+        image: bitnami/haproxy:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: haproxy-config-volume
+          mountPath: /bitnami/haproxy/conf/haproxy.cfg
+          subPath: haproxy.cfg
+      volumes:
+      - name: haproxy-config-volume
+        configMap:
+          name: haproxy-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy
+spec:
+  selector:
+    app: haproxy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

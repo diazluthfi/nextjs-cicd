@@ -79,7 +79,8 @@ pipeline {
                 ]) {
                     sh '''
                     oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
+                    oc apply -f nextjsnonhap.yml
+                    oc apply -f happroxy.yml
                     '''
                 }
 
