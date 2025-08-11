@@ -114,15 +114,24 @@ pipeline {
                     '''
                 }
                  // Deploy ke cluster Parhan
-                withCredentials([
-                    string(credentialsId: env.PARHAN_TOKEN, variable: 'OC_TOKEN'),
-                    string(credentialsId: env.PARHAN_SERVER, variable: 'OC_SERVER')
-                ]) {
-                    sh '''
-                    oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
-                    '''
-                }
+               withCredentials([
+                        string(credentialsId: env.PARHAN_TOKEN, variable: 'OC_TOKEN'),
+                        string(credentialsId: env.PARHAN_SERVER, variable: 'OC_SERVER')
+                    ]) {
+                        sh '''
+                            echo "Login ke OpenShift..."
+                            oc login --token=$OC_TOKEN --server=$OC_SERVER
+                            oc project my-namespace
+
+                            echo "Apply manifest..."
+                            oc apply -f nextjs.yml
+
+                            echo "Restart deployment..."
+                            oc rollout restart deployment/nextjs
+                            oc rollout status deployment/nextjs
+                        '''
+                    }
+
             }
         }
     }
