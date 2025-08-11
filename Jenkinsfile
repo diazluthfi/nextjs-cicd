@@ -5,10 +5,13 @@ pipeline {
         IMAGE_NAME = "diazluthfi/nextjs-app"
         IMAGE_TAG = "v${BUILD_NUMBER}" // Tanpa 'env.' karena sudah dalam block environment
         DOCKERHUB_CREDENTIALS_ID = "a036c99f-de1f-4a66-b4fa-f19b7871d0a5"
-        TOKEN_CREDENTIALS_ID = "6fd7c47e-ffd7-4b2b-907b-436d6a327c8c"
-        SERVER_CREDENTIALS_ID = "1a856ca8-927b-4627-bc5c-eeefb94cd1d1"
-        
-        OPENSHIFT_NAMESPACE = "cicdnextjs" // ganti dengan project-mu
+        MARZUQ_TOKEN = "6fd7c47e-ffd7-4b2b-907b-436d6a327c8c"
+        MARZUQ_SERVER = "1a856ca8-927b-4627-bc5c-eeefb94cd1d1"
+        ADHIT_TOKEN = "1971f6af-4364-4520-b6d3-7a06462967bd"
+        ADHIT_SERVER = "982385ef-d60e-4b8f-aedc-aa77ad6ff0e3"
+        INDRA_TOKEN = "5e05a171-1bbd-456e-9ac5-61bf0c4e1e5d"
+        ADJIE_TOKEN = "39061b16-9b3c-4837-aa45-a3fe74ae3d7f"
+        OPENSHIFT_NAMESPACE = "cicdnextjs" 
         MANIFEST_PATH = "nextjs.yml"  
     }
 
@@ -63,18 +66,31 @@ pipeline {
             }
         }
 
-        stage('Deploy to OpenShift') {
-            steps {
-                withCredentials([string(credentialsId: TOKEN_CREDENTIALS_ID, variable: 'OC_TOKEN')]) {
-                    sh '''
-                    oc login --token=$OC_TOKEN --server=https://api.rm1.0a51.p1.openshiftapps.com:6443
-                    oc apply -f nextjs.yml
-                    '''
+       stage('Deploy to OpenShift') {
+                steps {
+                    withCredentials([
+                        string(credentialsId: 'MARZUQ_TOKEN', variable: 'OC_TOKEN'),
+                        string(credentialsId: 'MARZUQ_SERVER', variable: 'OC_SERVER')
+                    ]) {
+                        sh '''
+                        oc login --token=$OC_TOKEN --server=$OC_SERVER
+                        oc apply -f nextjs.yml
+                        '''
+                    }
+                
+                    withCredentials([
+                        string(credentialsId: 'ADHIT_TOKEN', variable: 'OC_TOKEN'),
+                        string(credentialsId: 'ADHIT_SERVER', variable: 'OC_SERVER')
+                    ]) {
+                        sh '''
+                        oc login --token=$OC_TOKEN --server=$OC_SERVER
+                        oc apply -f nextjs.yml
+                        '''
+                    }
                 }
             }
-            
-        }
-    
+
+                
 
     }
     
