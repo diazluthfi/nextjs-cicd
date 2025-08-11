@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: nextjs
-          image: diazluthfi/nextjs-app:__IMAGE_TAG__
+          image: diazluthfi/nextjs-app:latest
           ports:
             - containerPort: 3000
               # resources:
