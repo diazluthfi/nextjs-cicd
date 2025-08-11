@@ -90,7 +90,7 @@ pipeline {
                 ]) {
                     sh '''
                     oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
+                    oc apply -f nextjsnonhap.yml
                     '''
                 }
                  // Deploy ke cluster INDRA
@@ -100,7 +100,7 @@ pipeline {
                 ]) {
                     sh '''
                     oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
+                    oc apply -f nextjsnonhap.yml
                     '''
                 }
                  // Deploy ke cluster Adjie
@@ -110,7 +110,7 @@ pipeline {
                 ]) {
                     sh '''
                     oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
+                    oc apply -f nextjsnonhap.yml
                     '''
                 }
                  // Deploy ke cluster Parhan
@@ -124,7 +124,7 @@ pipeline {
                             oc project parhanzzz-20-dev
 
                             echo "Apply manifest..."
-                            oc apply -f nextjs.yml
+                            oc apply -f nextjsnonhap.yml
 
                             echo "Restart deployment..."
                             oc rollout restart deployment/nextjs
