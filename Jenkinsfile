@@ -126,9 +126,6 @@ pipeline {
                             echo "Apply manifest..."
                             oc apply -f nextjsnonhap.yml
 
-                            echo "Restart deployment..."
-                            oc rollout restart deployment/nextjs
-                            oc rollout status deployment/nextjs
                         '''
                     }
 
