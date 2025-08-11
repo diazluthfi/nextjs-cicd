@@ -66,31 +66,32 @@ pipeline {
             }
         }
 
-     stage('Deploy to OpenShift') {
-            steps {
-                // Deploy ke cluster Marzuq
-                withCredentials([
-                    string(credentialsId: env.MARZUQ_TOKEN, variable: 'OC_TOKEN'),
-                    string(credentialsId: env.MARZUQ_SERVER, variable: 'OC_SERVER')
-                ]) {
-                    sh '''
-                    oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
-                    '''
-                }
-
-                // Deploy ke cluster Adhit
-                withCredentials([
-                    string(credentialsId: env.ADHIT_TOKEN, variable: 'OC_TOKEN'),
-                    string(credentialsId: env.ADHIT_SERVER, variable: 'OC_SERVER')
-                ]) {
-                    sh '''
-                    oc login --token=$OC_TOKEN --server=$OC_SERVER
-                    oc apply -f nextjs.yml
-                    '''
-                }
-            }
+        stage('Deploy to OpenShift') {
+    steps {
+        // Deploy ke cluster Marzuq
+        withCredentials([
+            string(credentialsId: env.MARZUQ_TOKEN, variable: 'OC_TOKEN'),
+            string(credentialsId: env.MARZUQ_SERVER, variable: 'OC_SERVER')
+        ]) {
+            sh '''
+            oc login --token=$OC_TOKEN --server=$OC_SERVER
+            oc apply -f nextjs.yml
+            '''
         }
+
+        // Deploy ke cluster Adhit
+        withCredentials([
+            string(credentialsId: env.ADHIT_TOKEN, variable: 'OC_TOKEN'),
+            string(credentialsId: env.ADHIT_SERVER, variable: 'OC_SERVER')
+        ]) {
+            sh '''
+            oc login --token=$OC_TOKEN --server=$OC_SERVER
+            oc apply -f nextjs.yml
+            '''
+        }
+    }
+    }
+    }
 
                 
 
