@@ -121,7 +121,7 @@ pipeline {
                         sh '''
                             echo "Login ke OpenShift..."
                             oc login --token=$OC_TOKEN --server=$OC_SERVER
-                            oc project my-namespace
+                            oc project parhanzzz-20-dev
 
                             echo "Apply manifest..."
                             oc apply -f nextjs.yml
