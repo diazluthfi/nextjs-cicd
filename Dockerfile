@@ -2,20 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /home/myuser/app
 
-# Tambahkan user dan install dependencies + build dalam satu layer
-RUN adduser -D myuser \
- && apk add --no-cache git  # jika perlu tools tambahan, hapus kalau gak perlu \
- && chown -R myuser:myuser /home/myuser
+RUN adduser -D myuser
 
-# Copy package.json dulu untuk caching yang optimal
-COPY package*.json ./
+# Copy package.json dulu dengan ownership myuser
+COPY --chown=myuser:myuser package*.json ./
 
-# Install dependencies dan build sebagai user myuser (pakai su-exec atau gosu, atau workaround)
 USER myuser
 
 RUN npm install && npm run build
 
-# Copy sisa file setelah build supaya cache lebih efektif
+# Copy sisa file dengan ownership myuser
 COPY --chown=myuser:myuser . .
 
 EXPOSE 3000
