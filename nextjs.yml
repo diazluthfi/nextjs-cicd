@@ -81,7 +81,6 @@ spec:
 #           averageUtilization: 40
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -103,7 +102,7 @@ spec:
             - containerPort: 80
           volumeMounts:
             - name: haproxy-config-volume
-              mountPath: /bitnami/haproxy/conf/haproxy.cfg
+              mountPath: /opt/bitnami/haproxy/conf/haproxy.cfg
               subPath: haproxy.cfg
       volumes:
         - name: haproxy-config-volume
@@ -123,6 +122,21 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
+
+---
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: haproxy
+spec:
+  to:
+    kind: Service
+    name: haproxy
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
 
 ---
 
@@ -147,9 +161,10 @@ data:
 
     backend web_backends
       balance roundrobin
-      option httpchk GET /status/200
-      server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
-      server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
-      server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
-      server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
-      server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+      option httpchk GET /
+      # ssl dan verify none penting untuk HTTPS backend tanpa verifikasi sertifikat
+      server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+      server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+      server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+      server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+      server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
