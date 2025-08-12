@@ -1,16 +1,22 @@
 FROM node:20-alpine
 
-WORKDIR /home/myuser/app
-
 RUN adduser -D myuser
 
-# Copy semua file dengan ownership myuser langsung
+WORKDIR /home/myuser/app
+
+# Pastikan ownership folder kerja sudah myuser
+RUN chown -R myuser:myuser /home/myuser/app
+
+# Copy package.json dan package-lock.json saja dulu dengan ownership myuser
 COPY --chown=myuser:myuser package*.json ./
-COPY --chown=myuser:myuser . .
 
 USER myuser
 
 RUN npm install
+
+# Copy source code lainnya, juga dengan ownership myuser
+COPY --chown=myuser:myuser . .
+
 RUN npm run build
 
 EXPOSE 3000
