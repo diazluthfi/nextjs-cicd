@@ -1,3 +1,4 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,14 +18,13 @@ spec:
           image: diazluthfi/nextjs-app:__IMAGE_TAG__
           ports:
             - containerPort: 3000
-          # Uncomment dan sesuaikan resources jika perlu
-          # resources:
-          #   requests:
-          #     cpu: "300m"
-          #     memory: "900Mi"
-          #   limits:
-          #     cpu: "600m"
-          #     memory: "1800Mi"
+              # resources:
+              #   requests:
+              #     cpu: "300m"
+              #     memory: "900Mi"
+              #   limits:
+              #     cpu: "600m"
+              #     memory: "1800Mi"
 
 ---
 apiVersion: v1
@@ -48,13 +48,12 @@ spec:
     kind: Service
     name: nextjs
   port:
-    targetPort: 80
+    targetPort: 3000
   tls:
     termination: edge
 
 ---
 
-# Uncomment dan sesuaikan kalau mau pakai autoscaling
 # apiVersion: autoscaling/v2
 # kind: HorizontalPodAutoscaler
 # metadata:
@@ -80,91 +79,78 @@ spec:
 #           type: Utilization
 #           averageUtilization: 40
 
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: haproxy
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: haproxy
-  template:
-    metadata:
-      labels:
-        app: haproxy
-    spec:
-      containers:
-        - name: haproxy
-          image: bitnami/haproxy:latest
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - name: haproxy-config-volume
-              mountPath: /opt/bitnami/haproxy/conf/haproxy.cfg
-              subPath: haproxy.cfg
-      volumes:
-        - name: haproxy-config-volume
-          configMap:
-            name: haproxy-config
 
----
 
-apiVersion: v1
-kind: Service
-metadata:
-  name: haproxy
-spec:
-  selector:
-    app: haproxy
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
 
----
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: haproxy
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: haproxy
+#   template:
+#     metadata:
+#       labels:
+#         app: haproxy
+#     spec:
+#       containers:
+#       - name: haproxy
+#         image: bitnami/haproxy:latest
+#         ports:
+#         - containerPort: 3000
+#         volumeMounts:
+#         - name: haproxy-config-volume
+#           mountPath: /bitnami/haproxy/conf/haproxy.cfg
+#           subPath: haproxy.cfg
+#       volumes:
+#       - name: haproxy-config-volume
+#         configMap:
+#           name: haproxy-config
 
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: haproxy
-spec:
-  to:
-    kind: Service
-    name: haproxy
-  port:
-    targetPort: 80
-  tls:
-    termination: edge
 
----
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: haproxy
+# spec:
+#   selector:
+#     app: haproxy
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 80
 
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: haproxy-config
-data:
-  haproxy.cfg: |
-    global
-      log stdout format raw local0
 
-    defaults
-      mode http
-      timeout connect 5s
-      timeout client  50s
-      timeout server  50s
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: haproxy-config
+# data:
+#   haproxy.cfg: |
+#    global
+#     log stdout format raw local0
 
-    frontend http_front
-      bind *:80
-      default_backend web_backends
+#     defaults
+#         mode http
+#         timeout connect 5s
+#         timeout client  50s
+#         timeout server  50s
 
-    backend web_backends
-      balance roundrobin
-      option httpchk GET /
-      # ssl dan verify none penting untuk HTTPS backend tanpa verifikasi sertifikat
-      server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+#     frontend http_front
+#         bind *:3000
+#         default_backend web_backends
+
+#     backend web_backends
+#         balance roundrobin
+#         option httpchk GET /status/200
+#         server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+#         server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+#         server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+#         server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+#         server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:80 check
+
+      
+

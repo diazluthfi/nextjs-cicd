@@ -13,22 +13,19 @@ data:
         timeout client  50s
         timeout server  50s
 
-    backend web_backends
-      balance roundrobin
-      option httpchk GET /
-      server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-      server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
-
-
     frontend http_front
-        bind *:8080
+        bind *:80
         default_backend web_backends
 
+    backend web_backends
+        balance roundrobin
+        option httpchk GET /
+        server app1 nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+        server app2 nextjs-adhitdn11-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+        server app3 nextjs-indraandriansyah-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+        server app4 nextjs-alexandeam-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
+        server app5 nextjs-parhanzzz-20-dev.apps.rm1.0a51.p1.openshiftapps.com:443 check ssl verify none
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,18 +44,16 @@ spec:
       - name: haproxy
         image: bitnami/haproxy:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 80
         volumeMounts:
         - name: haproxy-config-volume
-          mountPath: /bitnami/haproxy/conf/haproxy.cfg
+          mountPath: /opt/bitnami/haproxy/conf/haproxy.cfg
           subPath: haproxy.cfg
       volumes:
       - name: haproxy-config-volume
         configMap:
           name: haproxy-config
-
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -69,10 +64,8 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
-
+      targetPort: 80
 ---
-
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
