@@ -2,7 +2,7 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 
 const BASE_URL =
-  "https://nextjs-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com"; // Ganti dengan Route kamu
+  "https://haproxy-diazluthfi07-dev.apps.rm1.0a51.p1.openshiftapps.com"; // Ganti dengan Route kamu
 
 export let options = {
   stages: [
