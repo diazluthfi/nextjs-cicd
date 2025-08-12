@@ -6,7 +6,7 @@ const BASE_URL =
 
 export let options = {
   stages: [
-    { duration: "1m", target: 100 }, // 10 users selama 1 menit
+    { duration: "2m", target: 1000 }, // 10 users selama 1 menit
   ],
 };
 
